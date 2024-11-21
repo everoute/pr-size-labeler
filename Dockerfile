@@ -1,4 +1,4 @@
-FROM everoute/docpars:0.2.0-alpine
+FROM ghcr.io/everoute/docpars:0.2.0-alpine
 
 ADD entrypoint.sh /entrypoint.sh
 ADD src /src
