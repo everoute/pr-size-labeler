@@ -9,9 +9,11 @@ labeler::label() {
   local -r fail_if_xl="${10}"
   local -r message_if_xl="${11}"
   local -r files_to_ignore="${12}"
+  local -r ignore_line_deletions="${13}"
+  local -r ignore_file_deletions="${14}"
 
   local -r pr_number=$(github_actions::get_pr_number)
-  local -r total_modifications=$(github::calculate_total_modifications "$pr_number" "$files_to_ignore")
+  local -r total_modifications=$(github::calculate_total_modifications "$pr_number" "${files_to_ignore[*]}" "$ignore_line_deletions" "$ignore_file_deletions")
 
   log::message "Total modifications (additions + deletions): $total_modifications"
   log::message "Ignoring files (if present): $files_to_ignore"
@@ -23,12 +25,12 @@ labeler::label() {
   github::add_label_to_pr "$pr_number" "$label_to_add" "$xs_label" "$s_label" "$m_label" "$l_label" "$xl_label"
 
   if [ "$label_to_add" == "$xl_label" ]; then
-    if [ -n "$message_if_xl" ]; then
+    if [ -n "$message_if_xl" ] && ! github::has_label "$pr_number" "$label_to_add"; then
       github::comment "$message_if_xl"
     fi
 
     if [ "$fail_if_xl" == "true" ]; then
-      echoerr "Pr is xl, please, short this!!"
+      echoerr "PR is xl, please, shorten this!"
       exit 1
     fi
   fi
